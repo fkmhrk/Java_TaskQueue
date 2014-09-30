@@ -3,12 +3,13 @@ package jp.fkmsoft.libs.task.impl;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import jp.fkmsoft.libs.task.TaskQueue;
 
 public class TaskQueueImpl<T> implements TaskQueue<T> {
 
-    private final List<Task<T>> mTaskList = new LinkedList<Task<T>>();
+    private final Queue<Task<T>> mTaskList = new LinkedList<Task<T>>();
     private List<T> mResult;
     private TaskCallback<T> mCallback;
     
@@ -20,14 +21,14 @@ public class TaskQueueImpl<T> implements TaskQueue<T> {
     @Override
     public void execute(TaskQueue.TaskCallback<T> callback) {
         mCallback = callback;
-        mResult = new ArrayList<>(mTaskList.size());
+        mResult = new ArrayList<T>(mTaskList.size());
         execute();
     }
 
     @Override
     public void notifyResult(T result) {
         mResult.add(result);
-        mTaskList.remove(0);
+        mTaskList.poll();
         execute();
     }
 
@@ -41,6 +42,6 @@ public class TaskQueueImpl<T> implements TaskQueue<T> {
             mCallback.onSuccess(mResult);
             return;
         }
-        mTaskList.get(0).execute(this);
+        mTaskList.peek().execute(this);
     }
 }
